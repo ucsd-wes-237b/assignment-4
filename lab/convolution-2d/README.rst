@@ -1,4 +1,4 @@
-PA5 - Convolution
+Convolution
 =================
 
 .. figure:: /image/2D_Convolution_Animation.gif
