@@ -24,10 +24,10 @@ void OpenCLInterface::conv_forward_opencl_prolog(const float *host_y, const floa
     // Do not create your own device/context/queue. 
     // Use this->opencl->[program, kernel, queue, context]
     // OpenCL (common for entire NN)
-    //      class is defined here: https://github.com/KastnerRG/cse160-WI25/blob/main/PA6/src/layer/custom/opencl.h
-    //      methods defined here: https://github.com/KastnerRG/cse160-WI25/blob/main/PA6%2Fsrc%2Flayer%2Fcustom%opencl.cc
-    //      created and passed into the network here: https://github.com/KastnerRG/cse160-WI25/blob/main/PA6/m2.cc
-    //      it's pointer is kept in OpenCLInterface (THIS) class here: https://github.com/KastnerRG/cse160-WI25/blob/main/PA6/src/layer/custom/opencl-new-forward.h
+    //      class is defined here: opencl.h
+    //      methods defined here: opencl.cc
+    //      created and passed into the network here: m2.cc
+    //      it's pointer is kept in OpenCLInterface (THIS) class here: opencl-new-forward.h
 
     //@@ Copy memory to the OpenCL here
     // Copy input vectors to memory buffers
