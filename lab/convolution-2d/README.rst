@@ -103,13 +103,6 @@ Striding
 The matrix convvolution we have discussed so far has a default stride number of 1. For convolution with stride denoted :code:`s`, you should discard any pixel not at position :code:`s*i` or :code:`s*j` in the convoluted image with stride 1. You should preform convolution given the variable :code:`stride` in :code:`main.c`. 
 
 We have provided you an additional :code:`make with_stride` for stridded convolution.
-Submission
-^^^^^^^^^^
-Submit the :code:`main.c` and :code:`kernel.cl` file on gradescope. Preserve the file name before uploading to gradescope.
-
-Grading
-^^^^^^^
-Only 85% of this assignment will be graded on correctness of the outputs. To gain full credits, your implementation on GPU should run correctly within 40ms.   
 
 .. Tips and Tricks
 .. ^^^^^^^^^^^^^^^
