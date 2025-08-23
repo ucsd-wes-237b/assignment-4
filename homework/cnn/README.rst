@@ -23,11 +23,11 @@ The network will be tested on the `Fashion MNIST dataset <https://github.com/zal
 Instructions
 -------------
 This assignment requires you to write a GPU implementation of the convolutional layer. The files you need to update to implement the forward convolution is:
-:code:`PA6/src/layer/custom/new-forward-kernel.cl` and :code:`new-forward.cc`.
+:code:`homework/cnn/src/layer/custom/new-forward-kernel.cl` and :code:`new-forward.cc`.
 
 To understand which functions within :code:`new-forward-kernel.cl` are being called and when you can refer to :code:`cnn/src/layer/custom/gpu.cc`.
 
-Make sure that you use :code:`opecnl->context`, :code:`opencl->queue`, and :code:`opencl->program` from the :code:`opencl.cc` file for the context, command queue, and program.  These are initialized for you.
+Make sure that you use :code:`opencl->context`, :code:`opencl->queue`, and :code:`opencl->program` from the :code:`opencl.cc` file for the context, command queue, and program.  These are initialized for you.
 
 
 The pseudocode for a convolutional layer is:
@@ -79,7 +79,7 @@ File Descriptions
 
 How to Compile & Test
 --------------
-The :code:`PA6/src/layer/custom/new-forward-kernel.cl` and :code:`new-forward.cc` files contain the code for the programming assignment. It can be run by typing :code:`make gpu` from the PA6 folder. It generates a :code:`m1` output executable.
+The :code:`homework/cnn/src/layer/custom/new-forward-kernel.cl` and :code:`new-forward.cc` files contain the code for the programming assignment. It can be run by typing :code:`make gpu` from the :code:`cnn` folder. It generates a :code:`m1` output executable.
 
 How to Test
 -----------

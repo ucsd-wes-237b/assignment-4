@@ -85,7 +85,7 @@ A sequential pseudo code for convolution with SAME padding on the original image
 
 How to Compile
 ^^^^^^^^^^^^^^
-The :code:`main.c` and :code:`kernel.cl` file contains the code for the programming assignment. There is a Makefile included which compiles it. It can be run by typing :code:`make` from the PA5 folder. It generates a :code:`solution` output file. During development, make sure to run the :code:`make clean` command before running :code:`make`.
+The :code:`main.c` and :code:`kernel.cl` file contains the code for the programming assignment. There is a Makefile included which compiles it. It can be run by typing :code:`make` from the :code:`lab/convolution-2d` folder. It generates a :code:`solution` output file. During development, make sure to run the :code:`make clean` command before running :code:`make`.
 
 How to Test
 ^^^^^^^^^^^
