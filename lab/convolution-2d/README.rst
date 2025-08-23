@@ -104,6 +104,10 @@ The matrix convvolution we have discussed so far has a default stride number of 
 
 We have provided you an additional :code:`make with_stride` for stridded convolution.
 
+Report
+^^^^^^^^^
+Describe how you implemented the convolution operation, any optimizations you made, and the performance characteristics of your solution.
+
 .. Tips and Tricks
 .. ^^^^^^^^^^^^^^^
 .. After you understand how convolution works, I would recommend starting by implementing the embarrassingly parallel portion of convolution. Make sure the naive implementation works before going forward and attempting to incoporate shared memory. It will be extremely difficult to debug your shared memory portion if your basic convolution does not work. In terms of complexity, strategy 3 is the easiest and strategy 1 is the hardest.

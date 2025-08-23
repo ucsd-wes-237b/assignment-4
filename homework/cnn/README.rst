@@ -93,6 +93,9 @@ Test Output
 
 The accuracy of your implementation should meet the 0.886 that our implementation does.
 
+Report
+^^^^^^^
+Discuss your implementation, any optimizations you made, and the performance characteristics of your solution.
 
 Credit
 ------
