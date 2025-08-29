@@ -37,11 +37,11 @@ with_stride: solution
 	done
 
 time: solution
-	python3 ../utils/profile.py --args ./solution Dataset/without_strides/15/input0.raw Dataset/without_strides/15/kernel0.raw Dataset/without_strides/15/output.raw output.raw
+	python3 ../../utils/profile.py --args ./solution Dataset/without_strides/15/input0.raw Dataset/without_strides/15/kernel0.raw Dataset/without_strides/15/output.raw output.raw
 
 time_with_stride: solution
-	python3 ../utils/profile.py --args ./solution Dataset/with_strides/37/input0.raw Dataset/with_strides/37/kernel0.raw Dataset/with_strides/37/output.raw output.raw
+	python3 ../../utils/profile.py --args ./solution Dataset/with_strides/37/input0.raw Dataset/with_strides/37/kernel0.raw Dataset/with_strides/37/output.raw output.raw
 
 clean: 
 	rm -f solution
-	cd ../helper_lib; make clean
+	cd ../../helper_lib; make clean
