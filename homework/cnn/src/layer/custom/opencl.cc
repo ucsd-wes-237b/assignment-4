@@ -25,7 +25,6 @@
         fprintf(stderr, "%s failed: %d\n", msg, err); \
         exit(EXIT_FAILURE);                           \
     }
-
 void OpenCL::setup(cl_device_type device_type)
 {
     // Load external OpenCL kernel code
@@ -73,14 +72,14 @@ void OpenCL::setup(cl_device_type device_type)
     CHECK_ERR(err, "clBuildProgram");
 
     // Create the compute kernel in the program we wish to run
-    kernel = clCreateKernel(program, "conv_forward_kernel", &err);
-    CHECK_ERR(err, "clCreateKernel");
+    im2col_kernel = clCreateKernel(program, "im2col", &err);
+    CHECK_ERR(err, "clCreateKernel im2col");
 }
 
 void OpenCL::teardown()
 {
     clReleaseProgram(this->program);
-    clReleaseKernel(this->kernel);
+    clReleaseKernel(this->im2col_kernel);
     clReleaseCommandQueue(this->queue);
     clReleaseContext(this->context);
 }
