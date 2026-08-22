@@ -1,5 +1,5 @@
 {
-	"image": "ghcr.io/kastnerrg/cse160-opencl:cpu-arm64",
+	"image": "ghcr.io/kastnerrg/cse160-opencl:cpu-x86_64",
 	"customizations": {
 		"vscode": {
 			"extensions": [

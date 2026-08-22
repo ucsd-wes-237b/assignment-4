@@ -1,12 +1,12 @@
 {
-	"image": "ghcr.io/kastnerrg/cse160-opencl:qcomm",
+	"image": "ghcr.io/kastnerrg/cse160-opencl:gpu-intel",
 	"runArgs": [
-		"--device=/dev/kgsl-3d0"
+		"--device", "/dev/dxg",
+		"-v", "/usr/lib/wsl:/usr/lib/wsl"
 	],
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"VisualStudioExptTeam.vscodeintellicode",
 				"ms-vscode.cpptools-extension-pack"
 			]
 		}

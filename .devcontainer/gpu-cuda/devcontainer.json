@@ -1,5 +1,5 @@
 {
-	"image": "ghcr.io/kastnerrg/cse160-opencl:cuda",
+	"image": "ghcr.io/kastnerrg/cse160-opencl:gpu-cuda",
 	"runArgs": [
 		"--gpus=all",
 		"--runtime=nvidia",
@@ -8,7 +8,6 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"VisualStudioExptTeam.vscodeintellicode",
 				"ms-vscode.cpptools-extension-pack"
 			]
 		}

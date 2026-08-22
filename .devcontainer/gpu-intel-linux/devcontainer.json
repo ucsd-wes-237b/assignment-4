@@ -1,5 +1,8 @@
 {
-	"image": "ghcr.io/kastnerrg/cse160-opencl:cpu-arm64",
+	"image": "ghcr.io/kastnerrg/cse160-opencl:gpu-intel",
+	"runArgs": [
+		"--device", "/dev/dri"
+	],
 	"customizations": {
 		"vscode": {
 			"extensions": [

@@ -1,9 +1,11 @@
 {
-	"image": "ghcr.io/kastnerrg/cse160-opencl:cpu-amd64",
+	"image": "ghcr.io/kastnerrg/cse160-opencl:gpu-adreno",
+	"runArgs": [
+		"--device=/dev/kgsl-3d0"
+	],
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"VisualStudioExptTeam.vscodeintellicode",
 				"ms-vscode.cpptools-extension-pack"
 			]
 		}
