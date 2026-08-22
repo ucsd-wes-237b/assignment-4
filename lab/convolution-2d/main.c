@@ -53,7 +53,11 @@ void OpenCLConvolution2D(Image *input0, Matrix *input1, Image *result, int strid
     CHECK_ERR(err, "clCreateContext");
 
     // Create a command queue
+# if __APPLE__
+    queue = clCreateCommandQueue(context, device_id, 0, &err);
+# else
     queue = clCreateCommandQueueWithProperties(context, device_id, 0, &err);
+# endif
     CHECK_ERR(err, "clCreateCommandQueueWithProperties");
 
     // Create the program from the source buffer
@@ -65,7 +69,7 @@ void OpenCLConvolution2D(Image *input0, Matrix *input1, Image *result, int strid
     CHECK_ERR(err, "clBuildProgram");
 
     // Create the compute kernel in the program we wish to run
-    kernel = clCreateKernel(program, "convolution2D", &err);
+    kernel = clCreateKernel(program, "convolution2D_gpu", &err);
     CHECK_ERR(err, "clCreateKernel");
 
     //@@ Allocate GPU memory here
