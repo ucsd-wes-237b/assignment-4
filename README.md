@@ -22,7 +22,7 @@ I would leverage pocl for `printf` style debugging.  If you would like to levera
 `oclgrind` is another tool that can be used for debugging.  To use it like you would `gdb`, execute `oclgrind -i ...` for interactive mode.
 
 ## Lab
-The lab this class will be based on the 2d convolution.  See more information in the [README](lab/convolution-2d/README.rst).
+There are two labs this class.  The first is based on the 2d convolution, see more information in the [README](lab/convolution-2d/README.rst).  The second implements a matrix multiply using `CLBlast`, see more information in the [README](lab/blas_mm/README.md).
 
 ## Homework
 The homework will be building upon the 2d convolution you previously built.  See more information in the [README](homework/cnn/README.rst).
