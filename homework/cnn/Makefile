@@ -1,7 +1,7 @@
 CC       = g++
 CFLAGS   = -g -Wall
 INCFLAGS := -I../../helper_lib -I.
-LDFLAGS  := ../../helper_lib/helper_lib.a -lm
+LDFLAGS  := ../../helper_lib/helper_lib.a -lm -lclblast
 
 ifeq ($(shell uname -o), Darwin)
 	LDFLAGS += -framework OpenCL
@@ -15,10 +15,10 @@ endif
 all: m2 m1
 
 m2:		../../helper_lib/helper_lib.a m2.o ece408net.o src/network.o src/mnist.o layer.sentinel loss.sentinel custom.sentinel
-		$(CC) $(CFLAGS) m2.o ece408net.o src/network.o src/mnist.o src/layer/*.o src/loss/*.o src/layer/custom/*.o $(INCFLAGS) $(LDFLAGS) -o m2
+		$(CC) $(CFLAGS) src/layer/custom/new-forward.cc m2.o ece408net.o src/network.o src/mnist.o src/layer/*.o src/loss/*.o src/layer/custom/*.o $(INCFLAGS) $(LDFLAGS) -o m2
 
 m1:		../../helper_lib/helper_lib.a m1.o ece408net.o src/network.o src/mnist.o layer.sentinel loss.sentinel custom.sentinel
-		$(CC) $(CFLAGS) m1.o ece408net.o src/network.o src/mnist.o src/layer/*.o src/loss/*.o src/layer/custom/*.o $(INCFLAGS) $(LDFLAGS) -o m1
+		$(CC) $(CFLAGS) src/layer/custom/new-forward.cc m1.o ece408net.o src/network.o src/mnist.o src/layer/*.o src/loss/*.o src/layer/custom/*.o $(INCFLAGS) $(LDFLAGS) -o m1
 
 # debug:	debug_m2
 
@@ -64,7 +64,7 @@ layer.sentinel:		src/layer/conv.cc src/layer/ave_pooling.cc src/layer/conv_cust.
 
 custom.sentinel: src/layer/custom/opencl.cc src/layer/custom/new-forward.cc
 		$(CC) $(CFLAGS) -c src/layer/custom/opencl.cc -o src/layer/custom/opencl.o $(INCFLAGS)
-		$(CC) $(CFLAGS) -c src/layer/custom/new-forward.cc -o src/layer/custom/new-forward.o $(INCFLAGS)
+		# $(CC) $(CFLAGS) -c src/layer/custom/new-forward.cc -o src/layer/custom/new-forward.o $(INCFLAGS)
 		touch custom.sentinel
 
 loss.sentinel:           src/loss/cross_entropy_loss.cc src/loss/mse_loss.cc
@@ -84,16 +84,16 @@ clean:
 		cd ../../helper_lib; make clean
 
 cpu:		m1
-		./m1 1000
+		./m1 100
 
 
 gpu: 		m2
-		./m2 1000
+		./m2 100
 
 time: time_gpu
 
 time_gpu: 		m2
-		python3 ../utils/profile.py  --args ./m2 1000
+		python3 ../utils/profile.py  --args ./m2 100
 
 time_cpu: 	m1
-		python3 ../utils/profile.py  --args ./m1 1000
+		python3 ../utils/profile.py  --args ./m1 100

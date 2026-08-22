@@ -3,7 +3,6 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"VisualStudioExptTeam.vscodeintellicode",
 				"ms-vscode.cpptools-extension-pack"
 			]
 		}

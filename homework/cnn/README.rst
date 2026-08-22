@@ -1,104 +1,164 @@
-Convolutional Neural Network Forward Layer GPU Implementation
-===================================================================
+PA8 - GeMM Convolution
+======================
 
-Objective
----------
-This project implements the forward pass of a convolution layer using OpenCL. Convolutional layers are the primary building blocks of convolutional neural networks (CNNs), which are used for tasks like image classification, object detection, natural language processing, and recommendation systems.
+Introduction
+------------
+You will be implementing convolution via matrix multiplication. We will be building on a similar CNN skeleton as the previous assignment. This assignment has the most challenging indexing of all the PAs. We highly recommend that you draft your code in a separate file and test it on small test cases. Some test cases are provided at the bottom of this writeup. Due to the increased memory requirements, we are only using a batch of 100 instead of 1000 for this assignment.  This makes the new desired accuracy :code:`0.86`.
 
-You will be working with a modified version of the LeNet5 architecture shown below:
-
-.. figure:: /image/lenet.png
-    :align: center
-    :alt: LeNet-5 Architecture
-
-You can read about the original network in `Gradient-based learning applied to document recognition <https://ieeexplore.ieee.org/abstract/document/726791>`_
-
-Your optimized OpenCL implementation of the convolutional layer will be used to perform inference for layers C1 and C3 (shown in red) in the figure above. This leverages the `mini-dnn-cpp <https://github.com/iamhankai/mini-dnn-cpp>`_ (Mini-DNN) framework for implementing the modified LeNet-5.
-
-Input Data
-----------
-The network will be tested on the `Fashion MNIST dataset <https://github.com/zalandoresearch/fashion-mnist>`_, which contains 10,000 single channel images, each of dimension 86x86. We will process these in a batch of 1000 images. The output layer consists of 10 nodes representing the likelihood of the input belonging to one of the 10 classes (t-shirt, dress, sneaker, boot, etc).
-
-
-Instructions
--------------
-This assignment requires you to write a GPU implementation of the convolutional layer. The files you need to update to implement the forward convolution is:
-:code:`homework/cnn/src/layer/custom/new-forward-kernel.cl` and :code:`new-forward.cc`.
-
-To understand which functions within :code:`new-forward-kernel.cl` are being called and when you can refer to :code:`cnn/src/layer/custom/gpu.cc`.
-
-Make sure that you use :code:`opencl->context`, :code:`opencl->queue`, and :code:`opencl->program` from the :code:`opencl.cc` file for the context, command queue, and program.  These are initialized for you.
-
-
-The pseudocode for a convolutional layer is:
-
-.. code-block:: none
-
-    for b = 0 .. B                     // for each image in the batch 
-        for m = 0 .. M                 // for each output feature maps
-            for h = 0 .. H_out         // for each output element
-                for w = 0 .. W_out
-                {
-                    y[b][m][h][w] = 0;
-                    for c = 0 .. C     // sum over all input feature maps
-                        for p = 0 .. K // KxK filter
-                            for q = 0 .. K
-                                y[b][m][h][w] += x[b][c][h + p][w + q] * k[m][c][p][q]
-                }
-
-This animation helps visualize this process:
-
-.. figure:: /image/convolution.png
-    :align: center
-    :alt: Convolution Animation
-
-Source: https://stanford.edu/~shervine/teaching/cs-230/cheatsheet-convolutional-neural-networks#layer
-
-File Descriptions
------------------
-- **m1.cc**: The main file that contains the main function to run the forward pass of the convolutional layer on CPU.
-- **m2.cc**: The main file that contains the main function to run the forward pass of the convolutional layer on GPU.
-- **ece408net.cc**: The file that constructs the network.
-- **Eigen**: The Eigen library is used for matrix operations.
-- **src/network.cc**: Implementation of the network.
-- **src/mnist.cc**: For managing the MNIST dataset.
-- **src/optimizer/sgd.cc**: Implementation of the stochastic gradient descent optimizer.
-- **src/loss/cross_entropy_loss.cc**: Implementation of the cross entropy loss function.
-- **src/loss/mse_loss.cc**: Implementation of the mean squared error loss function.
-- **src/layer/ave_pooling.cc**: Implementation of the average pooling layer on CPU.
-- **src/layer/conv_cust.cc**: Implementation of the convolutional layer in OpenCL.
-- **src/layer/conv.cc**: Implementation of the convolutional layer on CPU.
-- **src/layer/fully_connected.cc**: Implementation of the fully connected layer on CPU.
-- **src/layer/max_pooling.cc**: Implementation of the max pooling layer on CPU.
-- **src/layer/relu.cc**: Implementation of the ReLU activation function on CPU.
-- **src/layer/sigmoid.cc**: Implementation of the sigmoid activation function on CPU.
-- **src/layer/softmax.cc**: Implementation of the softmax activation function on CPU.
-- **src/layer/custom/new-forward-kernel.cl**: The OpenCL kernel file that contains the implementation of the forward pass of the convolutional layer. Feel free to create additional functions for to optimize CPU and GPU independently.
-- **src/layer/custom/new-forward.cc**: The file that contains the implementation of the forward pass of the convolutional layer on OpenCL. You can use :code:`opencl->platform` and `opencl->device` to get information about the platform and device you are running on.
-- **src/layer/custom/opencl.cc**: The file that contains the OpenCL helper functions. It also contains information about the platform and device you are running on. **It is important that you use this file to initialize OpenCL and create the context, command queue, and program.**
-
-How to Compile & Test
---------------
-The :code:`homework/cnn/src/layer/custom/new-forward-kernel.cl` and :code:`new-forward.cc` files contain the code for the programming assignment. It can be run by typing :code:`make gpu` from the :code:`cnn` folder. It generates a :code:`m1` output executable.
-
-How to Test
+Your Tasks
 -----------
-Use the :code:`make gpu` command to test your program, which will run the program on a batch size of 1000 images on GPU. The command will print out the run time and accuracy. To test your program on CPU, use the command :code:`make cpu`.
+- Implement and call the im2col kernel
+- Call `clblast::GemmBatched` to compute the product of the mask and unrolled input feature maps.
 
-Test Output
------------
+im2col
+^^^^^^
 
-.. You will need to checkout a GPU for this assignment, but please avoid editing while accessing a device. You can accomplish this with:
-.. :code:`launch.sh -g 1 -s -i ghcr.io/ucsd-ets/cse160-notebook:main -W CSE160_WI25_A00 -P Always`
+Copy the elements of the input :math:`x` with shape :math:`(B, C, H, W)` to :math:`x_{\text{unroll}}` which has shape :math:`(B, C \times K \times K, (H - K + 1) \times (W - K + 1))`. Here, :math:`x_{\text{unroll}}` is a list of matrices with one matrix for each batch element. For a given matrix :math:`M` in :math:`x_{\text{unroll}}`:
 
-The accuracy of your implementation should meet the 0.886 that our implementation does.
+- each column of :math:`M` corresponds to one (row_o, col_o) pair in the **output of the convolution** (NOT the output of im2col)
+  
+  - output rows and columns are flattened in row-major order
+- the rows of :math:`M` correspond to the receptive field of each (row_o, col_o)
+  
+  - this is flattened in channel major order
+  - each channel is then flattened in row-major order
 
-Report
-^^^^^^^
-Discuss your implementation, any optimizations you made, and the performance characteristics of your solution.
+.. image:: /image/unroll_diagram.excalidraw.png
 
-Credit
-------
-This project is originally from UIUC ECE408 and builds off several open-source projects including the Fashion MNIST dataset, mini-dnn-cpp, and the Eigen project.
+Partial pseudocode is given below:
+::
 
+  for b in 0..<B:
+      for c_in in 0..<C:
+          for row_i in 0..<H:
+              for col_i in 0..<W:
+                  for mask_offset_row in 0..<K:
+                      for mask_offset_col in 0..<K:
+                          # indices in the output of the convolution whose receptive fields include (row_i, col_i)
+                          row_o = ??
+                          col_o = ??
+                          row_o_in_bounds = 0 <= row_o and row_o < H - K + 1
+                          col_o_in_bounds = 0 <= col_o and col_o < W - K + 1
+                          if row_o_in_bounds and col_o_in_bounds:
+                              # indices in x_unroll to write to
+                              col_u = ??
+                              row_u = ??
+                              
+                              x_unroll[b, row_u, col_u] = x[b, c_in, row_i, col_i]
 
+Guiding Questions
+"""""""""""""""""
+- Given a (row_i, col_i), what receptive fields overlap with it?
+- What (row_o, col_o) does each receptive field influence?
+- What part of the receptive field is it in?
+
+Batched GeMM
+^^^^^^^^^^^^
+
+Call `clblast::GemmBatched` to compute the product of :math:`k` and :math:`x_{\text{unroll}}`. The documentation for it is `here <https://github.com/CNugteren/CLBlast/blob/master/doc/api.md#xgemmbatched-batched-version-of-gemm>`_. For additional context:
+
+- The formula for batched GeMM is :math:`C_i \leftarrow \alpha_i A_i B_i + \beta_i C_i` where
+  
+  - :math:`i` is the batch index
+  - :math:`A_i` is :math:`m \times k`
+  - :math:`B_i` is :math:`k \times n`
+  - :math:`C_i` is :math:`m \times n` and modified in place
+  - :math:`\alpha_i, \beta_i \in \mathbb{R}`
+  
+- `a_offsets[i]` should be the (1 dimensional) index of the first element of matrix :math:`i` in :math:`A`
+  
+  - same applies to `b_offsets` and `c_offsets`
+  - it may be useful to use C++ vectors for this
+- the leading dimension of a row-major matrix is the number of columns it has
+
+Note that while the mask :math:`k` can be seen as a :math:`(M, C, K, K)` tensor, it can also be interpreted as an :math:`(M, C \times K \times K)` matrix, which is what we do here. If you are familiar with `numpy`, this is like doing `k.reshape((M, C * K * K))`. Similarly, :math:`y` is a :math:`(B, M, H-K+1, W-K+1)` tensor, but is interpreted as a :math:`(B, M, (H-K+1) \times (W-K+1))` tensor.
+
+Alternatively, you can write your own batched matrix multiplication kernel. This may also be good for testing your `im2col` kernel if you cannot get `clblast` to work yet.
+
+Implementation Suggestions
+--------------------------
+
+- Do the algorithm by hand on a small test case (such as those provided at the bottom of this writeup)
+- **Draft your code in a separate file and test on small test cases**
+  
+  - This can be done locally, reducing dependence on the DSMLP
+  - Tutors and TAs in office hours can better help with debugging this code as well
+- For each variable that represents an index, keep track of
+  
+  - What that index represents
+  - The range of possible values
+  - Whether it is indexing an element in the input, convolution output, or im2col output
+  - What 0 in its coordinate system represents
+
+Im2Col Test Cases
+----------------
+All of the following test cases have a batch dimension of 1.
+
+With :math:`C = 1, H = 4, W = 4, K=3`
+
+.. code-block::
+
+  x:
+  [[[ 0 1 2 3]
+    [ 4 5 6 7]
+    [ 8 9 10 11]
+    [12 13 14 15]]]
+   
+  x_unroll:
+  [[ 0  1  4  5]
+   [ 1  2  5  6]
+   [ 2  3  6  7]
+   [ 4  5  8  9]
+   [ 5  6  9 10]
+   [ 6  7 10 11]
+   [ 8  9 12 13]
+   [ 9 10 13 14]
+   [10 11 14 15]]
+
+With :math:`C=2, H=4, W=4, K=3`
+
+.. code-block::
+
+  x:
+  [[[ 0  1  2  3]
+    [ 4  5  6  7]
+    [ 8  9 10 11]
+    [12 13 14 15]]
+
+   [[16 17 18 19]
+    [20 21 22 23]
+    [24 25 26 27]
+    [28 29 30 31]]]
+
+  x_unroll:
+  [[ 0  1  4  5]
+   [ 1  2  5  6]
+   [ 2  3  6  7]
+   [ 4  5  8  9]
+   [ 5  6  9 10]
+   [ 6  7 10 11]
+   [ 8  9 12 13]
+   [ 9 10 13 14]
+   [10 11 14 15]
+   [16 17 20 21]
+   [17 18 21 22]
+   [18 19 22 23]
+   [20 21 24 25]
+   [21 22 25 26]
+   [22 23 26 27]
+   [24 25 28 29]
+   [25 26 29 30]
+   [26 27 30 31]]
+
+The following Python script can be used to make additional test data if you wish to draft your code in Python.
+
+.. code-block:: python
+
+  import numpy as np
+  C = 2
+  H = 4 
+  W = 4 
+  K = 3
+  x = np.arange(H * W * C)
+  x = x.reshape((1, C, H, W)) 
+  x_unroll = np.zeros((1, C * K * K,  (H - K + 1) *  (W - K + 1)), dtype=np.int32)
